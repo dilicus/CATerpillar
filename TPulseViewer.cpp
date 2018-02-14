@@ -11,7 +11,7 @@ TPulseViewer::~TPulseViewer()
 void TPulseViewer::Init()
 {
     
-    fMain = new TGMainFrame(gClient->GetRoot(),1500,900);
+    fMain = new TGMainFrame(gClient->GetRoot(),1800,1200);
     
     fMainChain = nullptr;
     fEventList = nullptr;
@@ -22,6 +22,11 @@ void TPulseViewer::Init()
     fEventListIndex = 0;
     fEventNumber = 0;
     fEventListNumber = 0;
+
+    //tab3
+    fChannel_tab3=1;
+    fEventIndex_tab3=0;
+
     
     //Add bar option
     fMenuBar = new TGMenuBar(fMain);
@@ -37,11 +42,8 @@ void TPulseViewer::Init()
     //create the tab handler
     TGTab *fTab = new TGTab(fMain, 300, 300);
     
-    
-    
     //creation of the tab for the pulseviewer
     TGCompositeFrame *fTab1 = fTab->AddTab("Pulse viewer");
-    
     
     //Creation of Horizontal frame for canvas and button group
     TGHorizontalFrame *hFrameTab1_1 = new TGHorizontalFrame(fTab1,600,400);
@@ -158,7 +160,7 @@ void TPulseViewer::Init()
     //Creation of the check button
     fRegularPlotButton = new TGCheckButton(DrawOptionButtons,"&Regular Plot");
     fAveragePlotButton = new TGCheckButton(DrawOptionButtons,"&Moving Average Plot");
-    fRemoveBaselineButton = new TGCheckButton(DrawOptionButtons,"&Remove Baseline");
+    fRemoveBaselineButton = new TGCheckButton(DrawOptionButtons,"&Subtract Baseline");
     TGHorizontal3DLine *hline_drawButton = new TGHorizontal3DLine(DrawOptionButtons);
     fSuperImposeButton = new TGCheckButton(DrawOptionButtons,"&SuperImpose Plot");
     
@@ -191,48 +193,34 @@ void TPulseViewer::Init()
     TGCheckButton *ShowFit = new TGCheckButton(fDrawFitOption,"&Draw Fit");
     
     //adding the button to show the fit
-    
     ShowFit->Connect("Toggled(Bool_t)", "TPulseViewer", this,"SetDrawFit(Bool_t)");
     fDrawFitOption->SetState(false);
     
     
-    //End of the horizontal frame for the canvas and buttons
+    //End of the horizontal frame for the cnavas and buttons
     
     //Creation of the group frame for the cut selection and the button
-    
-    
-    
-    
     TGGroupFrame *frameCutSelection = new TGGroupFrame(fTab1,"TCut Expression",kHorizontalFrame);
     fTab1->AddFrame(frameCutSelection, new TGLayoutHints(kLHintsCenterX | kLHintsCenterX | kLHintsTop |kLHintsExpandX,5,5,4,4));
-    
-    /*
-     
-     LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME
-     LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME
-     LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME
-     LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME
-     LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME LOOK AT ME
-    
-     
-     */
-    
-    fEntryCutExpression = new TGTextEdit(frameCutSelection); //<------FROM HERE
-    
-    
-    frameCutSelection->AddFrame(fEntryCutExpression, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,-2,5,2,2));
-    
-    fEntryCutExpression->GetCanvas()->Connect("ProcessedEvent(Event_t*)", "TPulseViewer", this, "SelectionReturnKeyPressed(Event_t*)");
-    
-    fEntryCutExpression->EnableCursorWithoutFocus(false); //<------TO HERE
-    
 
+    //OLD VERSION--------------------------------------------------------------
+    // fEntryCutExpression = new TGTextEntry(frameCutSelection,"");
+    // fEntryCutExpression->SetMaxLength(2000);    
+    // frameCutSelection->AddFrame(fEntryCutExpression, new TGLayoutHints(kLHintsExpandX,-2,5,2,2));
+    // fEntryCutExpression->Connect("ReturnPressed()","TPulseViewer",this,"ApplyCut()");
+    //NEW ONE
+    fEntryCutExpression = new TGTextEntry(frameCutSelection);
+    frameCutSelection->AddFrame(fEntryCutExpression, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,-2,5,2,2));
+    fEntryCutExpression->GetCanvas()->Connect("ProcessedEvent(Event_t*)", "TPulseViewer", this, "SelectionReturnKeyPressed(Event_t*)");
+    fEntryCutExpression->EnableCursorWithoutFocus(false);
+    //---------------------------------------------------------------------------
+    
     
     TGTextButton *apply = new TGTextButton(frameCutSelection,"Apply Cut");
-    apply->Connect("Clicked()","TPulseViewer",this,"ApplyCut()");
+    apply->Connect("Clicked()","TGTextEntry",fEntryCutExpression,"ReturnPressed()");
     frameCutSelection->AddFrame(apply, new TGLayoutHints(kLHintsRight ,5,-2,2,2));
     frameCutSelection->ChangeOptions( kFixedHeight);
-    frameCutSelection->Resize(500,75);
+    frameCutSelection->Resize(500,75);//OLD:47);
     
     //******************************************************************************************//
     //******************************************************************************************//
@@ -246,26 +234,30 @@ void TPulseViewer::Init()
     //Adding vframe for multi line label
     
     TGVerticalFrame *vFrame_2_1 = new TGVerticalFrame(hFrameTab2_1);
+    //OLD:TGVerticalFrame *vFrame_2_2= new TGVerticalFrame(hFrameTab2_1);
+    
     
     hFrameTab2_1->AddFrame(vFrame_2_1, new TGLayoutHints(kLHintsExpandY |kLHintsLeft,5,5,5,5));
-    
+    //OLD:hFrameTab2_1->AddFrame(vFrame_2_2, new TGLayoutHints(kLHintsExpandY |kLHintsLeft,5,5,5,5));
     
     
     vFrame_2_1->ChangeOptions(kFixedWidth);
-    
+    //OLD:vFrame_2_2->ChangeOptions(kFixedWidth);
     
     vFrame_2_1->SetWidth(380);
+    //OLD:vFrame_2_2->SetWidth(380);
     
-    
+    //OLD:fLabelBranchName = new TGLabel(vFrame_2_1,"");
+    //OLD:fLabelBranchValue = new TGLabel(vFrame_2_2,"");
+    //OLD:fLabelBranchName->SetTextJustify(kTextLeft|kTextTop);
+    //OLD:fLabelBranchValue->SetTextJustify(kTextRight|kTextTop);
+
+    //NEW:
     fTextNameAndValue = new TGTextEdit(vFrame_2_1);
     
-    
-    //fTextNameAndValue->SetTextJustify(kTextLeft|kTextTop);
-    
-    
-    vFrame_2_1->AddFrame(fTextNameAndValue,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
-    
-    
+
+    vFrame_2_1->AddFrame(fLabelBranchName, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
+    //OLD:vFrame_2_2->AddFrame(fLabelBranchValue,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
     
     //Combo box
     fComboBox = new TGComboBox(hFrameTab2_1);
@@ -277,16 +269,84 @@ void TPulseViewer::Init()
     
     
     
+    //******************************************************************************************//
+    //******************************************************************************************//
+    //******************************************************************************************//
+
+    //TFrame(parent,w,h);
+    //TGLayoutHints(,left,right,top,bottom)
     
+    //Third tab creation
+    TGCompositeFrame *fTab3 = fTab->AddTab("Interactive fitter");
+    TGHorizontalFrame *hFrameTab3_1 = new TGHorizontalFrame(fTab3,600,400);
+    fTab3->AddFrame(hFrameTab3_1,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,0,0,0,0));
+
+    TGVerticalFrame *vFrameTab3_2a = new TGVerticalFrame(hFrameTab3_1,800,700); //drawing and buttons
+    TGCompositeFrame *vFrameTab3_2b = new TGCompositeFrame(hFrameTab3_1,350,830); //fitpanel 
+    TGHorizontalFrame *hFrameTab3_2aa = new TGHorizontalFrame(vFrameTab3_2a); //drawings
+    TGHorizontalFrame *hFrameTab3_2ab = new TGHorizontalFrame(vFrameTab3_2a,830,50); //group of buttons
+    TGHorizontalFrame *hFrameTab3_2aba = new TGHorizontalFrame(hFrameTab3_2ab); //event selection + apply
+    TGVerticalFrame *vFrameTab3_2abb = new TGVerticalFrame(hFrameTab3_2ab); //channels tgradiobuttons
+
+    //adding to parent object
+    hFrameTab3_1->AddFrame(vFrameTab3_2a, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 0,0,0,0));
+    hFrameTab3_1->AddFrame(vFrameTab3_2b, new TGLayoutHints(kLHintsExpandY, 0,0,0,0));
+    vFrameTab3_2a->AddFrame(hFrameTab3_2aa, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 0,0,0,0));
+    vFrameTab3_2a->AddFrame(hFrameTab3_2ab);
+    hFrameTab3_2ab->AddFrame(hFrameTab3_2aba);
+    hFrameTab3_2ab->AddFrame(vFrameTab3_2abb);
+
+    
+    vFrameTab3_2b->SetEditable(kTRUE);
+    fFitEditor_tab3 = new TFitEditor(NULL,NULL);
+    vFrameTab3_2b->SetEditable(kFALSE);
+
+    fFitEditor_tab3->Connect("ProcessedEvent(Event_t*)","TPulseViewer",this,"ShowResiduals(Event_t*)");
+
+    // Create canvas widget
+    fEcanvas_tab3 = new TRootEmbeddedCanvas("Ecanvas",hFrameTab3_2aa,800,700);
+    hFrameTab3_2aa->AddFrame(fEcanvas_tab3,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 5,5,5,5));
+
+    
+    //---- Create buttons widget ----------------------------------------------------------------------
+    //event selection
+    fEvNumLabel_tab3=new TGLabel(hFrameTab3_2aba,"Event number: ");
+    fEvNumLabel_tab3->SetTextJustify(kTextCenterX);
+    hFrameTab3_2aba->AddFrame(fEvNumLabel_tab3,new TGLayoutHints(kLHintsCenterY,50,5,60,10));
+    fEventNumber_tab3 = new TGTextEntry(hFrameTab3_2aba,"");
+    fEventNumber_tab3->SetAlignment(kTextCenterX);
+    fEventNumber_tab3->SetMaxLength(30);
+    fEventNumber_tab3->Connect("ReturnPressed()","TPulseViewer",this,"SelectEvent_tab3()");
+    hFrameTab3_2aba->AddFrame(fEventNumber_tab3,new TGLayoutHints(kLHintsCenterY,5,30,60,10));
+    fEventNumber_tab3->ChangeOptions(kFixedWidth | kFixedHeight | kSunkenFrame);
+    fEventNumber_tab3->Resize(80,30);
+
+    TGTextButton *apply_tab3 = new TGTextButton(hFrameTab3_2aba,"&Apply");
+    apply_tab3->Connect("Clicked()","TGTextEntry",fEventNumber_tab3,"ReturnPressed()");
+    apply_tab3->ChangeOptions(kFixedWidth | kFixedHeight | kRaisedFrame);
+    apply_tab3->Resize(80,30);
+    hFrameTab3_2aba->AddFrame(apply_tab3,new TGLayoutHints(kLHintsCenterY,10,0,60,10));
+
+    //channel selection
+    fChannelButtons_tab3 = new TGButtonGroup(vFrameTab3_2abb,"Channel signal");
+    new TGRadioButton(fChannelButtons_tab3,"&Phonon channel",0);
+    new TGRadioButton(fChannelButtons_tab3,"&Light channel",1);
+    new TGRadioButton(fChannelButtons_tab3,"&iStick channel",2);
+    fChannelButtons_tab3->SetButton(0);
+    fChannelButtons_tab3->Connect("Pressed(Int_t)","TPulseViewer",this,"SelectChannel_gradio(Int_t)");
+    vFrameTab3_2abb->AddFrame(fChannelButtons_tab3, new TGLayoutHints(kLHintsRight | kLHintsTop, 200,0,10,10));
+    
+
     fMain->Connect("CloseWindow()", "TPulseViewer", this, "~TPulseViewer()");
     fMain->AddFrame(fTab, new TGLayoutHints(kLHintsNormal| kLHintsExpandX |kLHintsExpandY));
+
     // Set a name to the main frame
     fMain->SetWindowName("Pulse Viewer CRESST - 3");
     // Map all subwindows of main frame
     fMain->MapSubwindows();
     
     // Initialize the layout algorithm
-    fMain->Resize(1000,700);
+    fMain->Resize(1200,900);
     
     // Map main frame
     fMain->MapWindow();
@@ -336,9 +396,9 @@ TPulseViewer::TPulseViewer(TChain *input_chain)
                 fDrawFitOption->SetState(true);
                 TGString s=new TGString();
                 if(strcmp(fFriendListChain->At(i)->GetName(),"ParticleFit")==0)
-                    fFitTreeParticle=((TFriendElement*)fFriendListChain->FindObject( "ParticleFit" ))->GetTree();
+                    fFitTreeParticle=((TFriendElement *)fFriendListChain->FindObject( "ParticleFit" ))->GetTree();
                 if(strcmp(fFriendListChain->At(i)->GetName(),"TestPulseFit")==0)
-                    fFitTreeTP=((TFriendElement*)fFriendListChain->FindObject( "TestPulseFit" ))->GetTree();
+                    fFitTreeTP=((TFriendElement *)fFriendListChain->FindObject( "TestPulseFit" ))->GetTree();
                 
             }
             if(strcmp(fFriendListChain->At(i)->GetName(),"PulseData")==0)
@@ -349,19 +409,22 @@ TPulseViewer::TPulseViewer(TChain *input_chain)
     
     if(fPulseChain==nullptr)
         if(strcmp(fMainChain->GetName(),"PulseData")==0)
-            fPulseChain=fMainChain;
+	  fPulseChain=fMainChain;
+
+    //NEW: ----------------------------------------------------------------
     if(fFitTreeParticle==nullptr) //<------------------ form here
-        if(strcmp(fMainChain->GetName(),"ParticleFit")==0)
-            fFitTreeParticle=fMainChain;
+      if(strcmp(fMainChain->GetName(),"ParticleFit")==0)
+	fFitTreeParticle=fMainChain;
     if(fFitTreeTP==nullptr)
-        if(strcmp(fMainChain->GetName(),"TestPulseFit")==0)
-            fFitTreeTP=fMainChain;;
+      if(strcmp(fMainChain->GetName(),"TestPulseFit")==0)
+	fFitTreeTP=fMainChain;  //<------------------ to here
+    //---------------------------------------------------------------------
     
-            //<------------------ to here
+    
     fComboBox->Select(0);
-    
+
+    //NEW:
     DrawEvent();
-    
     
 }
 
@@ -492,19 +555,19 @@ void TPulseViewer::SelectionReturnKeyPressed(Event_t *event)    //<-------------
 }
 
 
+
+
 //Apply cut
 void TPulseViewer::ApplyCut()
 {
     
-    fTCutExpression =((TGText*)(fEntryCutExpression->GetText()))->AsString();
+    fTCutExpression =fEntryCutExpression->GetText();
     
     if(fPulseChain==nullptr)
     {
         printf("No Pulse Chain, impossible to draw pulse\n");
         return;
     }
-    
-    
     
     
     Long64_t check=fMainChain->Draw(">>list",Form("%s",fTCutExpression.GetTitle()));
@@ -523,9 +586,7 @@ void TPulseViewer::ApplyCut()
         fEntryCutExpression->SetBackgroundColor(0xff0000);
         return;
     }
-    
-    
-    
+
     
     DrawEvent();
     return;
@@ -538,9 +599,7 @@ void TPulseViewer::ApplyCut()
 void TPulseViewer::SelectEvent()
 {
     TString s = fEntryNumberIndex->GetText();
-    
-    
-    
+        
     if(s.IsDigit())
         LoadEvent(s.Atoll());
     return;
@@ -548,8 +607,6 @@ void TPulseViewer::SelectEvent()
 
 void TPulseViewer::LoadEvent(Long64_t idx)
 {
-    
-    
     if(idx>-1 && idx<fEventListNumber)
         fEventListIndex=idx;
     
@@ -568,7 +625,7 @@ void TPulseViewer::Previous()
         fEventListIndex--;
     
     DrawEvent();
-    
+    return;
 }
 
 
@@ -588,7 +645,6 @@ void TPulseViewer::Next()
 void TPulseViewer::DrawEvent()
 {
     
-    
     if(fPulseChain==nullptr)
     {
         printf("No Pulse Chain, impossible to draw pulse\n");
@@ -606,10 +662,6 @@ void TPulseViewer::DrawEvent()
     fEventIndex=fEventList->GetEntry(fEventListIndex);
     fDisplayNumber->SetText(Form("%lld of %lld",fEventIndex,fEventNumber));
     fDisplayListNumber->SetText(Form("%lld of %lld",fEventListIndex,fEventListNumber));
-    
-    
-    
-    
     
     
     //for pulse drawing
@@ -663,7 +715,6 @@ void TPulseViewer::DrawEvent()
     LegendVector.resize(ChannelNumber);
     
     
-    
     FILE *file_rdt=fopen(FileName[0].c_str(),"rb");
     TString FileNamePar(FileName[0].c_str());
     FileNamePar.Replace(FileNamePar.Index(".rdt",4,0,TString::kExact),4,".par");
@@ -671,18 +722,14 @@ void TPulseViewer::DrawEvent()
     FILE *file_par=fopen(FileNamePar.Data(),"r");
     
     GetInfoParFile(file_par);
-    
-    
-    
-    
+        
     for(Int_t k=0;k<ChannelNumber;k++)
     {
         
         if(!fCheckRemoveBaseLine)
             BaseLineOffset->at(k)=0;
 
-        
-        
+            
         GraphVector[k]=new TGraph();
         GraphVector[k]->SetEditable(false);
         
@@ -727,14 +774,10 @@ void TPulseViewer::DrawEvent()
         }
         
         
-        
-        
-        
         Double_t mean=0;
         Double_t x,y;
         GraphVector[k]->GetPoint(0,x,y);
-        
-        
+	
         
         mean=y * fNumberAverage/2;
         for(Int_t j=0;j<fNumberAverage/2;j++)
@@ -777,20 +820,10 @@ void TPulseViewer::DrawEvent()
                 mean+= -y/fNumberAverage;
                 GraphVectorAverage[k]->SetPoint(j,j*fTimeBase,mean);
             }
-            
-            
+               
         }
         
-        
-        
-        
-        
-        
     }
-    
-    
-    
-    
     
     TTree *auxTree=nullptr;
     
@@ -801,8 +834,6 @@ void TPulseViewer::DrawEvent()
     
     if(fCheckDrawFit && auxTree!=nullptr)
     {
-        
-        
         
         auxTree->SetBranchAddress("Badness",&Badness);
         auxTree->SetBranchAddress("Scales",&Scales);
@@ -821,12 +852,7 @@ void TPulseViewer::DrawEvent()
     }
     
     
-    
-    
-    
-    
-    
-    TCanvas *fCanvas = fEcanvas->GetCanvas();
+    fCanvas = fEcanvas->GetCanvas();
     fCanvas->cd();
     fCanvas->Clear();
     
@@ -847,7 +873,6 @@ void TPulseViewer::DrawEvent()
     
     if(fCheckSuperImpose)
         fCanvas->Divide(1,1);
-    
     
     
         
@@ -893,19 +918,20 @@ void TPulseViewer::DrawEvent()
         
         if(!fCheckSuperImpose)
         {
+	  fCanvas->cd(k+1);//NEW: va levato?!
             
             if(fCheckRegularPlot)
-                GraphVector[k]->Draw("AL");
+	      GraphVector[k]->Draw("AL");
             
             if(fCheckAveragePlot && fCheckRegularPlot)
-                GraphVectorAverage[k]->Draw("Lsame");
+	      GraphVectorAverage[k]->Draw("LC");
             
             if(fCheckAveragePlot && !fCheckRegularPlot)
-                GraphVectorAverage[k]->Draw("AL");
+	      GraphVectorAverage[k]->Draw("AL");
             
             if(auxTree!=nullptr)
                 if(fCheckDrawFit && Badness->at(k)==0 )
-                    GraphFit[k]->Draw("same");
+		  GraphFit[k]->Draw("C");
             
             
             if(fCheckAveragePlot|| fCheckRegularPlot)
@@ -919,12 +945,9 @@ void TPulseViewer::DrawEvent()
                     LegendVector[k]->AddEntry(GraphFit[k],Form("Fit"),"l");
             
             if(fCheckAveragePlot|| fCheckRegularPlot)
-                LegendVector[k]->Draw("same");
+	      LegendVector[k]->Draw("same");
             
         }
-        
-        
-        
         
     }
     
@@ -934,8 +957,7 @@ void TPulseViewer::DrawEvent()
         if(ChannelNumber==2)
         {
             GraphVector[1]->SetLineColor(kRed);
-            GraphVector[1]->SetFillColor(kWhite);
-            
+            GraphVector[1]->SetFillColor(kWhite);        
         }
         
         LegendVector[0]=new TLegend(0.65,0.78,0.93,0.93);
@@ -946,7 +968,6 @@ void TPulseViewer::DrawEvent()
             GraphVector[1]->SetFillColor(kWhite);
             GraphVector[2]->SetLineColor(kSpring+7);
             GraphVector[2]->SetFillColor(kWhite);
-            
         }
         
         
@@ -956,7 +977,7 @@ void TPulseViewer::DrawEvent()
             if(k==0)
                 GraphVector[k]->Draw("AL");
             if(k>0)
-                GraphVector[k]->Draw("Lsame");
+                GraphVector[k]->Draw("LC");
             
             if(k==0)
                 LegendVector[0]->AddEntry(GraphVector[k],"Phonon");
@@ -966,7 +987,6 @@ void TPulseViewer::DrawEvent()
             
             if(k==2)
                 LegendVector[0]->AddEntry(GraphVector[k],"Stick");
-            
             
         }
         
@@ -979,12 +999,324 @@ void TPulseViewer::DrawEvent()
     
     fPulseChain->ResetBranchAddresses();
     
+    fCanvas->Modified();//NEW:va levato?!
     fCanvas->Update();
     fclose(file_rdt);
     fclose(file_par);
     
     
 }
+
+
+
+//--------- tab 3 ------------------------------------------------------------
+
+UInt_t TPulseViewer::GetChannelNumber_tab3(){
+    return fEventIndex;
+}
+
+void TPulseViewer::SetChannelNumber_tab3(UInt_t i){
+        fChannel_tab3=i;
+    
+}
+
+
+void TPulseViewer::SelectChannel_tab3()
+{
+  // TString s = fEventChannel_tab3->GetText();
+
+  // if(s.IsDigit()){
+  //   //    if(s.Atoll()<0 || s.Atoll()>2) casellina rossa
+  //   if(s.Atoll()<3)fChannel_tab3=s.Atoll();
+  // }
+  // return;
+}
+
+
+void TPulseViewer::SelectChannel_gradio(Int_t id)
+{
+  fChannel_tab3=id;
+  //SelectEvent_tab3();
+  DrawSinglePulse();
+  //return;
+}
+
+
+void TPulseViewer::SelectEvent_tab3()
+{
+  TString s = fEventNumber_tab3->GetText();
+  
+  if(s.IsDigit())
+    LoadEvent_tab3(s.Atoll());
+  //return;
+}
+
+void TPulseViewer::Apply_tab3(){
+  // SelectEvent_tab3();
+  
+  // SelectChannel_tab3();
+  // return;
+};
+
+void TPulseViewer::LoadEvent_tab3(Long64_t idx)
+{    
+    if(idx>-1 && idx<fEventNumber)
+      fEventIndex_tab3=idx;
+    else
+      return;
+
+
+    if(fPulseChain==nullptr)
+      {
+        printf("No Pulse Chain, impossible to draw pulse\n");
+        return;
+      }
+    
+    fPulseChain_tab3=fPulseChain;
+    
+    
+    std::vector<Int_t> *ChannelID = {nullptr};
+    fPulseChain_tab3->SetBranchAddress("ChannelID",&ChannelID);
+    fPulseChain_tab3->GetEntry(fEventIndex_tab3);
+    
+    Int_t ChannelNumber = ChannelID->size();
+
+    fChannelButtons_tab3->SetState(true);
+
+    
+    if(ChannelNumber==2){//only phonon+light
+      ((TGButton*)fChannelButtons_tab3->Find(2))->SetState(kButtonDisabled);
+
+    }
+    
+    if(ChannelNumber==1){//only phonon
+      ((TGButton*)fChannelButtons_tab3->Find(2))->SetState(kButtonDisabled);
+      ((TGButton*)fChannelButtons_tab3->Find(1))->SetState(kButtonDisabled);
+
+      
+    }
+    
+    fChannelButtons_tab3->SetButton(0);    
+    DrawSinglePulse();
+    //return;
+}
+
+
+
+void TPulseViewer::DrawSinglePulse()
+{    
+    if(fPulseChain==nullptr)
+    {
+        printf("No Pulse Chain, impossible to draw pulse\n");
+        return;
+    }
+
+    fPulseChain_tab3=fPulseChain;    
+    
+    //for pulse drawing
+    std::vector<ULong64_t> *RecordNumber = {nullptr};
+    std::vector<Int_t> *ChannelID = {nullptr};
+    std::vector<Double_t> *TestPulseAmplitude = {nullptr};
+    std::string *FileName = {nullptr};
+    std::vector<Double_t> *BaseLineOffset = {nullptr};
+    
+    UInt_t ModuleID = 0;   
+    
+    fPulseChain_tab3->SetBranchAddress("RecordNumber",&RecordNumber);
+    fPulseChain_tab3->SetBranchAddress("FileName",&FileName);
+    fPulseChain_tab3->SetBranchAddress("ChannelID",&ChannelID);
+    fPulseChain_tab3->SetBranchAddress("TestPulseAmplitude",&TestPulseAmplitude);
+    fPulseChain_tab3->SetBranchAddress("BaseLineOffset",&BaseLineOffset);
+    fPulseChain_tab3->SetBranchAddress("ModuleID",&ModuleID);
+
+    
+    fPulseChain_tab3->GetEntry(fEventIndex_tab3);
+    
+    short volt=0;
+    int skip_int=0;
+    struct tm * timeinfo;
+    char buffer[80]={0};
+    time_t time=0;
+    int time_us=0;
+    
+    Int_t ChannelNumber = RecordNumber->size();
+       
+    GraphVector_tab3.resize(ChannelNumber);
+    
+    FILE *file_rdt=fopen(FileName[0].c_str(),"rb");
+    TString FileNamePar(FileName[0].c_str());
+    FileNamePar.Replace(FileNamePar.Index(".rdt",4,0,TString::kExact),4,".par");
+    
+    FILE *file_par=fopen(FileNamePar.Data(),"r");
+    
+    GetInfoParFile(file_par);
+        
+    
+    for(Int_t k=0;k<ChannelNumber;k++)
+    {
+      
+         GraphVector_tab3[k]=new TGraph();
+         GraphVector_tab3[k]->SetEditable(false);
+               
+        fseek(file_rdt,fRecordLenght*RecordNumber->at(k),SEEK_SET);
+        
+        for(Int_t i=0;i<4;i++)
+            fread(&skip_int,sizeof(int),1,file_rdt);
+        
+        
+        fread(&time,sizeof(int),1,file_rdt);
+        timeinfo = gmtime(&time);
+        
+        fread(&time_us,sizeof(int),1,file_rdt);
+        
+        strftime(buffer,80,"%a %d %b %G %T",timeinfo);  
+      
+         GraphVector_tab3[k]->SetTitle(Form("Event %lld, ChID %d , Time: %s.%3d (UTC);Time [ms];Amplitude [V]   ",fEventIndex_tab3,ChannelID->at(k), buffer, time_us/1000 ));
+      
+
+        
+        for(Int_t i=0;i<1;i++)
+            fread(&skip_int,sizeof(int),1,file_rdt);
+        
+        for(Int_t i=0;i<fUInt;i++)
+            fread(&skip_int,sizeof(unsigned int ),1,file_rdt);
+        
+        for(Int_t i=0;i<fReals;i++)
+            fread(&skip_int,sizeof(float ),1,file_rdt);
+        
+        
+        
+        for(Int_t j=0;j<fSample;j++)
+        {
+            fread(&volt,sizeof(short),1,file_rdt);
+            GraphVector_tab3[k]->SetPoint(j,j*fTimeBase,-10.  +double( volt +32768 )*20./65536. - BaseLineOffset->at(k)) ;
+        }
+        
+    }        
+    
+    fCanvas_tab3=fEcanvas_tab3->GetCanvas();
+    pad1_tab3 = new TPad("pad1_tab3", "pad1_tab3", 0, 0.3, 1, 1.0);
+    pad2_tab3 = new TPad("pad2_tab3", "pad2_tab3", 0, 0.001, 1, 0.3);
+    fCanvas_tab3->cd();
+    fCanvas_tab3->Clear();
+    
+    Double_t Xmin,Xmax;
+            
+    for(Int_t k=0;k<ChannelNumber;k++)
+    {        
+        Xmin = GraphVector_tab3[k]->GetYaxis()->GetXmin();
+        Xmax = GraphVector_tab3[k]->GetYaxis()->GetXmax();
+        GraphVector_tab3[k]->GetYaxis()->SetRangeUser(Xmin,(Xmax-Xmin)*1.25 + Xmin);
+        GraphVector_tab3[k]->GetXaxis()->SetTitleOffset(0.95);
+        GraphVector_tab3[k]->GetYaxis()->SetTitleOffset(1.05);
+        GraphVector_tab3[k]->GetXaxis()->SetTitleSize(0.045);
+        GraphVector_tab3[k]->GetYaxis()->SetTitleSize(0.045);
+        GraphVector_tab3[k]->GetXaxis()->SetLabelSize(0.037);
+        GraphVector_tab3[k]->GetYaxis()->SetLabelSize(0.037);
+        GraphVector_tab3[k]->GetXaxis()->SetRangeUser(0,fTimeBase*fSample);
+                
+        GraphVector_tab3[k]->SetFillColor(kWhite);
+    }
+
+    pad1_tab3->SetTicks();
+    pad1_tab3->SetRightMargin(0.03);
+    pad1_tab3->Draw();             // Draw the upper pad: pad1
+    pad1_tab3->cd();               // pad1 becomes the current pad
+    GraphVector_tab3[fChannel_tab3]->Draw("AL");
+    fCanvas_tab3->cd();          // Go back to the main canvas before defining pad2
+
+    fFitEditor_tab3->SetFitObject((TVirtualPad*)pad1_tab3,GraphVector_tab3[fChannel_tab3],kButton1Down);
+   
+    fPulseChain_tab3->ResetBranchAddresses();
+    
+    fCanvas_tab3->Update();
+    fclose(file_rdt);
+    fclose(file_par);
+
+    //needed by ShowResiduals
+    Nfitfun2 = 0;
+
+    return;
+}
+
+void TPulseViewer::ShowResiduals(Event_t *ev)
+{
+
+  if(ev->fType==14){
+
+      Int_t nFunction = GraphVector_tab3[fChannel_tab3]->GetListOfFunctions()->GetEntries();
+
+      if(nFunction>0){
+		
+	Int_t LastUsedFunction = nFunction-1;
+	
+	TF1 *f_fitted_temp = (TF1*)GraphVector_tab3[fChannel_tab3]->GetListOfFunctions()->At(GraphVector_tab3[fChannel_tab3]->GetListOfFunctions()->GetEntries()-1);
+	TF1 *f_fitted = new TF1(*f_fitted_temp);
+	
+
+	Nfitfun1 = fFitEditor_tab3->GetListOfFittingFunctions()->GetEntries();
+	if(Nfitfun1!=Nfitfun2){
+	  cout << endl;
+	  cout << "#######################################################################################" << endl;
+	  fFitEditor_tab3->GetListOfFittingFunctions()->At(Nfitfun1-1)->Print();
+	  cout << "#######################################################################################" << endl;
+	  cout << endl;
+	  Nfitfun2=Nfitfun1;
+	}
+	
+
+	TGraph *residuals = new TGraph(fSample);
+	Double_t XmaxRange,XminRange;
+	f_fitted->GetRange(XminRange,XmaxRange);
+
+	
+	for(Int_t i=0;i<fSample;i++){
+	  residuals->SetPoint(i,i*fTimeBase,GraphVector_tab3[fChannel_tab3]->Eval(i*fTimeBase)-f_fitted->Eval(i*fTimeBase));
+	  if(i*fTimeBase<XminRange || i*fTimeBase>XmaxRange)residuals->SetPoint(i,i*fTimeBase,0.);
+	}
+       
+	fCanvas_tab3->cd();
+	pad2_tab3->SetPad(0,0.001,1,0.37);//xlow,ylow,xup,yup
+	pad2_tab3->SetTicks();
+	pad2_tab3->SetTopMargin(0);
+	pad2_tab3->SetBottomMargin(0.2);
+	pad2_tab3->SetRightMargin(0.03);
+	pad2_tab3->SetLeftMargin(0.1);
+	pad2_tab3->Draw();
+	pad2_tab3->cd();
+
+	
+	Double_t Xmin,Xmax;
+	Xmin = residuals->GetYaxis()->GetXmin();
+        Xmax = residuals->GetYaxis()->GetXmax();
+	residuals->SetTitle("");
+	residuals->GetXaxis()->SetTickLength(0.06);
+	residuals->GetYaxis()->SetTickLength(0.03);
+	residuals->GetXaxis()->SetTitle("Time [ms]");
+	residuals->GetYaxis()->SetTitle("Data - Fit [V]");
+	residuals->GetYaxis()->CenterTitle();
+        residuals->GetXaxis()->SetTitleSize(0.08);
+        residuals->GetYaxis()->SetTitleSize(0.09);
+        residuals->GetXaxis()->SetTitleOffset(0.95);
+        residuals->GetYaxis()->SetTitleOffset(0.53);
+        residuals->GetXaxis()->SetLabelSize(0.07);
+        residuals->GetYaxis()->SetLabelSize(0.07);
+        residuals->GetXaxis()->SetRangeUser(0,fTimeBase*fSample);
+	residuals->SetFillColor(kWhite);
+	residuals->Draw("AL+");
+	residuals->SetEditable(kFALSE);
+	TF1 *zeroLine = new TF1("zeroLine","0",0,fTimeBase*fSample);
+	zeroLine->SetLineWidth(1);
+	zeroLine->SetLineColor(kRed);
+	zeroLine->Draw("same");
+	pad2_tab3->Update();
+	
+      }
+      
+    }
+}
+
+//----------------------------------------------------------------------------
 
 
 //Info method
@@ -1003,9 +1335,10 @@ void TPulseViewer::SelectChain(Int_t PulseIdx)
 
 void TPulseViewer::InfoEvent()
 {
-    
+    //NEW:
     fTextNameAndValue->Clear();
     
+    //OLD:TGString s_name=new TGString();
     TGString s_value=new TGString();
     Int_t scan_field = fInfoTree->GetScanField();
     char buffer[80];
@@ -1023,21 +1356,28 @@ void TPulseViewer::InfoEvent()
     ((TTreePlayer*)(fInfoTree->GetPlayer()))->SetScanRedirect(true);
     for(Int_t i=0;i<fInfoTree->GetListOfBranches()->GetEntries();i++)
     {
+        //OLD: ---------------------------------------------------------------
+        // s_name.Append(fInfoTree->GetListOfBranches()->At(i)->GetName());
+        // s_name.Append("\n");
+        //NEW:
         s_value.Append(fInfoTree->GetListOfBranches()->At(i)->GetName());
         s_value.Append("\n");
+	//-------------------------------------------------------------------
         
         TString aux_string;
         
         pFile=fopen(buffer,"w");
         
-        
-        
-        
         ((TTreePlayer*)(fInfoTree->GetPlayer()))->SetScanFileName(buffer);
-        if(strcmp(fInfoTree->GetListOfBranches()->At(i)->GetName(),"FileName")==0 )
-            ((TTreePlayer*)(fInfoTree->GetPlayer()))->Scan(fInfoTree->GetListOfBranches()->At(i)->GetName(),"","colsize=55",1,fEventIndex);
+
+	//OLD: -------------------------------------------------------------------------
+        ((TTreePlayer*)(fInfoTree->GetPlayer()))->Scan(fInfoTree->GetListOfBranches()->At(i)->GetName(),"","colsize=40",1,fEventIndex);
+	//NEW:
+	if(strcmp(fInfoTree->GetListOfBranches()->At(i)->GetName(),"FileName")==0 )
+	  ((TTreePlayer*)(fInfoTree->GetPlayer()))->Scan(fInfoTree->GetListOfBranches()->At(i)->GetName(),"","colsize=55",1,fEventIndex);
         else
-            ((TTreePlayer*)(fInfoTree->GetPlayer()))->Scan(fInfoTree->GetListOfBranches()->At(i)->GetName(),"","colsize=8",1,fEventIndex);
+	  ((TTreePlayer*)(fInfoTree->GetPlayer()))->Scan(fInfoTree->GetListOfBranches()->At(i)->GetName(),"","colsize=8",1,fEventIndex);
+        //-------------------------------------------------------------------------------
         
         fclose(pFile);
         pFile=fopen(buffer,"r");
@@ -1047,16 +1387,15 @@ void TPulseViewer::InfoEvent()
         for(Int_t i=0;i<3;i++)
             aux_string.Gets(pFile);
         
-        
+        //OLD: s_value.Append("\n");
         
         while(aux_string.Gets(pFile))
         {
             //aux_string.Tokenize("*")->Print();
             if(aux_string.Tokenize("*")->GetEntries()>0)
-                s_value.Append(aux_string.Tokenize("*")->At(aux_string.Tokenize("*")->GetEntries()-1)->GetName());
-            
+            s_value.Append(aux_string.Tokenize("*")->At(aux_string.Tokenize("*")->GetEntries()-1)->GetName());
             s_value.Append("\n");
-            
+            //OLD:s_name.Append("\n");
         }
         
         fclose(pFile);
@@ -1066,27 +1405,34 @@ void TPulseViewer::InfoEvent()
         
     }
 
+    //OLD: -----------------------------------------------
+    //fLabelBranchName->SetText(s_name.Data());
+    //fLabelBranchValue->SetText(s_value.Data());
+    //NEW:
     TGText text(s_value.Data());
-    
     fTextNameAndValue->AddText(&text);
-    
+    //---------------------------------------------------- 
+       
     ((TTreePlayer*)(fInfoTree->GetPlayer()))->SetScanRedirect(false);
     fInfoTree->SetScanField(scan_field);
     
     freopen(buf, "w", stdout);
-    //cout<<s_value.Data()<<endl;
+    
 }
 
 
 
 void TPulseViewer::GetInfoParFile(FILE *fid)
 {
-    
+
+
     TString s;
     for(int i=0;i<25;i++)
     {
-        s.Gets(fid);
-        //searching for the number of integer
+
+       s.Gets(fid);
+
+       //searching for the number of integer
         if(s.Contains("Integers in header             :"))
         {
             s.Remove(0,s.First(":")+1);
@@ -1131,6 +1477,8 @@ void TPulseViewer::GetInfoParFile(FILE *fid)
         
         
     }
+
+
     
     fRecordLenght= fSample*sizeof(short) + fDVM*sizeof(float) + fInt*sizeof(int) + fUInt*sizeof(unsigned int) +fReals*sizeof(float);
     
@@ -1167,11 +1515,11 @@ void example() {
     
     //TChain *ch=nullptr;
     ch=new TChain("PulseData");
-    ch->Add("ncal1_000.root");
+    ch->Add("cal3_001.root");
     ch_friend_ptc =new TChain("ParticleFit");
     ch_friend_tp =new TChain("TestPulseFit");
-    ch_friend_ptc->Add("ncal1_000_fit.root");
-    ch_friend_tp->Add("ncal1_000_fit.root");
+    ch_friend_ptc->Add("cal3_001_fit.root");
+    ch_friend_tp->Add("cal3_001_fit.root");
     ch->AddFriend(ch_friend_ptc);
     ch->AddFriend(ch_friend_tp);
     
