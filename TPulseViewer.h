@@ -23,11 +23,12 @@ private:
     
     TGMainFrame               *fMain;
     TRootEmbeddedCanvas       *fEcanvas;
+    TCanvas                   *fCanvas;
     TChain                    *fMainChain;
     TTree                     *fPulseChain=nullptr;
     TList                     *fList;
     TCut                       fTCutExpression;
-    TGTextEdit                *fEntryCutExpression; //<------------------
+    TGTextEntry               *fEntryCutExpression;
     TGMenuBar                 *fMenuBar;
     Bool_t                     fCheckAveragePlot=false;
     Bool_t                     fCheckRegularPlot=true;
@@ -41,7 +42,8 @@ private:
     TGCheckButton             *fSuperImposeButton=nullptr;
     TGLabel                   *fDisplayListNumber;
     TGLabel                   *fDisplayNumber;
-    TGTextEdit                *fTextNameAndValue;
+    TGLabel                   *fLabelBranchName;
+    TGLabel                   *fLabelBranchValue;
     TGComboBox                *fComboBox;
     TGTextEntry               *fEntryNumberIndex;
     TList                     *fFriendListChain=nullptr;
@@ -55,18 +57,47 @@ private:
     Long64_t                   fEventListNumber;// numero totale eventi lista
     
     
-    UInt_t                      fSample = 16384;
-    UInt_t                      fInt=7;
-    UInt_t                      fUInt=3;
-    UInt_t                      fReals=3;
-    UInt_t                      fDVM=0;
-    Double_t                    fTimeBase=0.04;
-    ULong64_t                   fRecordLenght = fSample*sizeof(short)
+    UInt_t                     fSample = 16384;
+    UInt_t                     fInt=7;
+    UInt_t                     fUInt=3;
+    UInt_t                     fReals=3;
+    UInt_t                     fDVM=0;
+    Double_t                   fTimeBase=0.04;
+    ULong64_t                  fRecordLenght = fSample*sizeof(short)
                                               + fDVM*sizeof(float)
                                               + fInt*sizeof(int)
                                               + fUInt*sizeof(unsigned int)
-                                              +fReals*sizeof(float);
-    UInt_t                      fNumberAverage = 50;
+                                              + fReals*sizeof(float);
+    UInt_t                     fNumberAverage = 50;
+
+
+
+    //tab3
+    TRootEmbeddedCanvas       *fEcanvas_tab3;
+    TCanvas                   *fCanvas_tab3;
+    TRootEmbeddedCanvas       *fEcanvas2_tab3;
+    TCanvas                   *fCanvas2_tab3;
+    TGTextEntry               *fEventNumber_tab3;
+    TGTextEntry               *fEventChannel_tab3;
+    UInt_t                     fChannel_tab3=0;
+    Long64_t                   fEventIndex_tab3;
+    TGLabel                   *fChannelLabel_tab3;
+    TGLabel                   *fEvNumLabel_tab3;
+    TTree                     *fPulseChain_tab3=nullptr;
+    TFitEditor                *fFitEditor_tab3;
+    TGRadioButton             *fChannelPhonon;
+    TGRadioButton             *fChannelLight;
+    TGRadioButton             *fChannelStick;
+    TGButtonGroup             *fChannelButtons_tab3;
+    TPad                      *pad1_tab3;
+    TPad                      *pad2_tab3;
+    TGraph                    *GraphVector_tab3_temp;
+    std::vector<TGraph*>       GraphVector_tab3;
+    Int_t                      Nfitfun1;
+    Int_t                      Nfitfun2;
+    
+
+
     
     
     virtual void   GetInfoParFile(FILE *fid);
@@ -106,12 +137,23 @@ public:
     virtual void SelectEvent();
     virtual void Next();
     virtual void Previous();
+
+    //tab3
+    virtual void   DrawSinglePulse();
+    virtual void   SelectChannel_tab3();
+    virtual void   Apply_tab3();
+    virtual void   LoadEvent_tab3(Long64_t index);
+    virtual void   SelectEvent_tab3();
+    virtual UInt_t GetChannelNumber_tab3();
+    virtual void   SetChannelNumber_tab3(UInt_t i);
+    virtual void   SelectChannel_gradio(Int_t i);
+    virtual void   ShowResiduals(Event_t *ev);
+
+    
     
     //Info method
     virtual void SelectChain(Int_t PulseIdx);
     virtual void InfoEvent();
-    
-    
     virtual void SelectionReturnKeyPressed(Event_t*); //<------------------
     virtual void ApplyCut();
     virtual void GetInfoData();
