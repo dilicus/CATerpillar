@@ -1,5 +1,8 @@
 #include "TPulseViewer.h"
 
+#define MIRIAM 0
+
+
 TPulseViewer::~TPulseViewer()
 {
     
@@ -1518,8 +1521,14 @@ void example() {
     ch->Add("cal3_001.root");
     ch_friend_ptc =new TChain("ParticleFit");
     ch_friend_tp =new TChain("TestPulseFit");
+
+#if MIRIAM
     ch_friend_ptc->Add("cal3_001_fit.root");
     ch_friend_tp->Add("cal3_001_fit.root");
+#else
+    ch_friend_ptc->Add("~/ncal1_001_fit.root");
+    ch_friend_tp->Add("~/ncal1_001_fit.root");
+#endif
     ch->AddFriend(ch_friend_ptc);
     ch->AddFriend(ch_friend_tp);
     
