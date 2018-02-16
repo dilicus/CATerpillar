@@ -212,7 +212,7 @@ void TPulseViewer::Init()
     // frameCutSelection->AddFrame(fEntryCutExpression, new TGLayoutHints(kLHintsExpandX,-2,5,2,2));
     // fEntryCutExpression->Connect("ReturnPressed()","TPulseViewer",this,"ApplyCut()");
     //NEW ONE
-    fEntryCutExpression = new TGTextEntry(frameCutSelection);
+    fEntryCutExpression = new TGTextEdit(frameCutSelection);
     frameCutSelection->AddFrame(fEntryCutExpression, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,-2,5,2,2));
     fEntryCutExpression->GetCanvas()->Connect("ProcessedEvent(Event_t*)", "TPulseViewer", this, "SelectionReturnKeyPressed(Event_t*)");
     fEntryCutExpression->EnableCursorWithoutFocus(false);
@@ -259,7 +259,7 @@ void TPulseViewer::Init()
     fTextNameAndValue = new TGTextEdit(vFrame_2_1);
     
 
-    vFrame_2_1->AddFrame(fLabelBranchName, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
+    vFrame_2_1->AddFrame(fTextNameAndValue, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
     //OLD:vFrame_2_2->AddFrame(fLabelBranchValue,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
     
     //Combo box
@@ -564,7 +564,7 @@ void TPulseViewer::SelectionReturnKeyPressed(Event_t *event)    //<-------------
 void TPulseViewer::ApplyCut()
 {
     
-    fTCutExpression =fEntryCutExpression->GetText();
+    fTCutExpression =((TGText*)fEntryCutExpression->GetText())->AsString();
     
     if(fPulseChain==nullptr)
     {
@@ -1539,11 +1539,11 @@ void exampleSte() {
     
     //TChain *ch=nullptr;
     ch=new TChain("PulseData");
-    ch->Add("ncal1_000.root");
+    ch->Add("~/ncal1_000.root");
     ch_friend_ptc =new TChain("ParticleFit");
     ch_friend_tp =new TChain("TestPulseFit");
-    ch_friend_ptc->Add("ncal1_000_fit.root");
-    ch_friend_tp->Add("ncal1_000_fit.root");
+    ch_friend_ptc->Add("~/ncal1_000_fit.root");
+    ch_friend_tp->Add("~/ncal1_000_fit.root");
     ch->AddFriend(ch_friend_ptc);
     ch->AddFriend(ch_friend_tp);
     
