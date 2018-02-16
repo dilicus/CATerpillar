@@ -1,6 +1,6 @@
 #include "TPulseViewer.h"
 
-#define MIRIAM 0
+
 
 
 TPulseViewer::~TPulseViewer()
@@ -1514,7 +1514,8 @@ TChain *ch_friend_ptc = nullptr;
 TChain *ch_friend_tp = nullptr;
 
 TPulseViewer *p=nullptr;
-void example() {
+
+void exampleMiri() {
     
     //TChain *ch=nullptr;
     ch=new TChain("PulseData");
@@ -1522,13 +1523,27 @@ void example() {
     ch_friend_ptc =new TChain("ParticleFit");
     ch_friend_tp =new TChain("TestPulseFit");
 
-#if MIRIAM
+
     ch_friend_ptc->Add("cal3_001_fit.root");
     ch_friend_tp->Add("cal3_001_fit.root");
-#else
-    ch_friend_ptc->Add("~/ncal1_001_fit.root");
-    ch_friend_tp->Add("~/ncal1_001_fit.root");
-#endif
+
+    ch->AddFriend(ch_friend_ptc);
+    ch->AddFriend(ch_friend_tp);
+    
+    p=new TPulseViewer(ch);
+    
+}
+
+
+void exampleSte() {
+    
+    //TChain *ch=nullptr;
+    ch=new TChain("PulseData");
+    ch->Add("ncal1_000.root");
+    ch_friend_ptc =new TChain("ParticleFit");
+    ch_friend_tp =new TChain("TestPulseFit");
+    ch_friend_ptc->Add("ncal1_000_fit.root");
+    ch_friend_tp->Add("ncal1_000_fit.root");
     ch->AddFriend(ch_friend_ptc);
     ch->AddFriend(ch_friend_tp);
     
