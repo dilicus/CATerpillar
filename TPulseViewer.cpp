@@ -327,6 +327,13 @@ void TPulseViewer::Init()
     apply_tab3->Resize(80,30);
     hFrameTab3_2aba->AddFrame(apply_tab3,new TGLayoutHints(kLHintsCenterY,10,0,60,10));
 
+
+    TGTextButton *previous_tab3 = new TGTextButton(hFrameTab3_2aba,"Previous");
+    previous_tab3->Connect("Clicked()","TPulseViewer",this,"Previous()");
+    TGTextButton *next_tab3 = new TGTextButton(hFrameTab3_2aba,"Next");
+    next_tab3->Connect("Clicked()","TPulseViewer",this,"Next()");
+
+    
     //channel selection
     fChannelButtons_tab3 = new TGButtonGroup(vFrameTab3_2abb,"Channel signal");
     new TGRadioButton(fChannelButtons_tab3,"&Phonon channel",0);
