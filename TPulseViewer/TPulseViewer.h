@@ -28,7 +28,7 @@ private:
     TTree                     *fPulseChain=nullptr;
     TList                     *fList;
     TCut                       fTCutExpression;
-    TGTextEntry               *fEntryCutExpression;
+    TGTextEdit               *fEntryCutExpression;
     TGMenuBar                 *fMenuBar;
     Bool_t                     fCheckAveragePlot=false;
     Bool_t                     fCheckRegularPlot=true;
@@ -42,8 +42,7 @@ private:
     TGCheckButton             *fSuperImposeButton=nullptr;
     TGLabel                   *fDisplayListNumber;
     TGLabel                   *fDisplayNumber;
-    TGLabel                   *fLabelBranchName;
-    TGLabel                   *fLabelBranchValue;
+    TGTextEdit                *fTextNameAndValue;
     TGComboBox                *fComboBox;
     TGTextEntry               *fEntryNumberIndex;
     TList                     *fFriendListChain=nullptr;

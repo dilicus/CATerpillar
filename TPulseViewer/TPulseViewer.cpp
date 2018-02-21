@@ -206,18 +206,13 @@ void TPulseViewer::Init()
     TGGroupFrame *frameCutSelection = new TGGroupFrame(fTab1,"TCut Expression",kHorizontalFrame);
     fTab1->AddFrame(frameCutSelection, new TGLayoutHints(kLHintsCenterX | kLHintsCenterX | kLHintsTop |kLHintsExpandX,5,5,4,4));
     
-    //OLD VERSION--------------------------------------------------------------
-    // fEntryCutExpression = new TGTextEntry(frameCutSelection,"");
-    // fEntryCutExpression->SetMaxLength(2000);
-    // frameCutSelection->AddFrame(fEntryCutExpression, new TGLayoutHints(kLHintsExpandX,-2,5,2,2));
-    // fEntryCutExpression->Connect("ReturnPressed()","TPulseViewer",this,"ApplyCut()");
-    //NEW ONE
+    
     fEntryCutExpression = new TGTextEdit(frameCutSelection);
     frameCutSelection->AddFrame(fEntryCutExpression, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,-2,5,2,2));
     fEntryCutExpression->GetCanvas()->Connect("ProcessedEvent(Event_t*)", "TPulseViewer", this, "SelectionReturnKeyPressed(Event_t*)");
     fEntryCutExpression->EnableCursorWithoutFocus(false);
     
-    //---------------------------------------------------------------------------
+    
     
     
     TGTextButton *apply = new TGTextButton(frameCutSelection,"Apply Cut");
@@ -226,9 +221,6 @@ void TPulseViewer::Init()
     frameCutSelection->ChangeOptions( kFixedHeight);
     frameCutSelection->Resize(500,75);//OLD:47);
     
-    //******************************************************************************************//
-    //******************************************************************************************//
-    //******************************************************************************************//
     
     //Second tab creation
     TGCompositeFrame *fTab2 = fTab->AddTab("Pulse Information");
@@ -238,30 +230,22 @@ void TPulseViewer::Init()
     //Adding vframe for multi line label
     
     TGVerticalFrame *vFrame_2_1 = new TGVerticalFrame(hFrameTab2_1);
-    //OLD:TGVerticalFrame *vFrame_2_2= new TGVerticalFrame(hFrameTab2_1);
-    
-    
+   
     hFrameTab2_1->AddFrame(vFrame_2_1, new TGLayoutHints(kLHintsExpandY |kLHintsLeft,5,5,5,5));
-    //OLD:hFrameTab2_1->AddFrame(vFrame_2_2, new TGLayoutHints(kLHintsExpandY |kLHintsLeft,5,5,5,5));
+    
     
     
     vFrame_2_1->ChangeOptions(kFixedWidth);
-    //OLD:vFrame_2_2->ChangeOptions(kFixedWidth);
     
-    vFrame_2_1->SetWidth(380);
-    //OLD:vFrame_2_2->SetWidth(380);
     
-    //OLD:fLabelBranchName = new TGLabel(vFrame_2_1,"");
-    //OLD:fLabelBranchValue = new TGLabel(vFrame_2_2,"");
-    //OLD:fLabelBranchName->SetTextJustify(kTextLeft|kTextTop);
-    //OLD:fLabelBranchValue->SetTextJustify(kTextRight|kTextTop);
+    vFrame_2_1->SetWidth(580);
     
-    //NEW:
     fTextNameAndValue = new TGTextEdit(vFrame_2_1);
     fTextNameAndValue->SetReadOnly(true);
     fTextNameAndValue->ChangeOptions(0);
+    fTextNameAndValue->SetBackground(0xe7e7e7);
     vFrame_2_1->AddFrame(fTextNameAndValue, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
-    //OLD:vFrame_2_2->AddFrame(fLabelBranchValue,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
+    
     
     //Combo box
     fComboBox = new TGComboBox(hFrameTab2_1);
@@ -272,13 +256,6 @@ void TPulseViewer::Init()
     fComboBox->Connect("Selected(Int_t)", "TPulseViewer", this, "SelectChain(Int_t)");
     
     
-    
-    //******************************************************************************************//
-    //******************************************************************************************//
-    //******************************************************************************************//
-    
-    //TFrame(parent,w,h);
-    //TGLayoutHints(,left,right,top,bottom)
     
     //Third tab creation
     TGCompositeFrame *fTab3 = fTab->AddTab("Interactive fitter");
@@ -935,7 +912,7 @@ void TPulseViewer::DrawEvent()
             
             if(auxTree!=nullptr)
                 if(fCheckDrawFit && Badness->at(k)==0 )
-                    GraphFit[k]->Draw("C");
+                    GraphFit[k]->Draw("same");
             
             
             if(fCheckAveragePlot|| fCheckRegularPlot)
@@ -1339,11 +1316,11 @@ void TPulseViewer::SelectChain(Int_t PulseIdx)
 
 void TPulseViewer::InfoEvent()
 {
-    //NEW:
+    
     fTextNameAndValue->Clear();
     
-    //OLD:TGString s_name=new TGString();
-    TGString s_value=new TGString();
+    
+    
     Int_t scan_field = fInfoTree->GetScanField();
     char buffer[80];
     tmpnam (buffer);
@@ -1358,15 +1335,14 @@ void TPulseViewer::InfoEvent()
     
     TTreePlayer *player= (TTreePlayer*)fInfoTree->GetPlayer();
     ((TTreePlayer*)(fInfoTree->GetPlayer()))->SetScanRedirect(true);
+    
     for(Int_t i=0;i<fInfoTree->GetListOfBranches()->GetEntries();i++)
     {
-        //OLD: ---------------------------------------------------------------
-        // s_name.Append(fInfoTree->GetListOfBranches()->At(i)->GetName());
-        // s_name.Append("\n");
-        //NEW:
-        s_value.Append(fInfoTree->GetListOfBranches()->At(i)->GetName());
-        s_value.Append("\n");
-        //-------------------------------------------------------------------
+        
+        fTextNameAndValue->AddLine(Form(" %s",fInfoTree->GetListOfBranches()->At(i)->GetName()));
+        
+        
+        
         
         TString aux_string;
         
@@ -1374,33 +1350,32 @@ void TPulseViewer::InfoEvent()
         
         ((TTreePlayer*)(fInfoTree->GetPlayer()))->SetScanFileName(buffer);
         
-        //OLD: -------------------------------------------------------------------------
-        //((TTreePlayer*)(fInfoTree->GetPlayer()))->Scan(fInfoTree->GetListOfBranches()->At(i)->GetName(),"","colsize=40",1,fEventIndex);
-        //NEW:
         if(strcmp(fInfoTree->GetListOfBranches()->At(i)->GetName(),"FileName")==0 )
             ((TTreePlayer*)(fInfoTree->GetPlayer()))->Scan(fInfoTree->GetListOfBranches()->At(i)->GetName(),"","colsize=55",1,fEventIndex);
         else
+        {
+        if(strcmp(fInfoTree->GetListOfBranches()->At(i)->GetName(),"ModelName")==0 )
+            ((TTreePlayer*)(fInfoTree->GetPlayer()))->Scan(fInfoTree->GetListOfBranches()->At(i)->GetName(),"","colsize=55",1,fEventIndex);
+        else
             ((TTreePlayer*)(fInfoTree->GetPlayer()))->Scan(fInfoTree->GetListOfBranches()->At(i)->GetName(),"","colsize=8",1,fEventIndex);
-        //-------------------------------------------------------------------------------
+        }
         
         fclose(pFile);
         pFile=fopen(buffer,"r");
         
         
-        
         for(Int_t i=0;i<3;i++)
             aux_string.Gets(pFile);
         
-        //OLD: s_value.Append("\n");
-        
         while(aux_string.Gets(pFile))
         {
-            //aux_string.Tokenize("*")->Print();
             if(aux_string.Tokenize("*")->GetEntries()>0)
-                s_value.Append(aux_string.Tokenize("*")->At(aux_string.Tokenize("*")->GetEntries()-1)->GetName());
-            s_value.Append("\n");
-            //OLD:s_name.Append("\n");
+            {
+                fTextNameAndValue->AddLine(Form("%65s",aux_string.Tokenize("*")->At(aux_string.Tokenize("*")->GetEntries()-1)->GetName()));
+                fTextNameAndValue->AddLine(" ");
+            }
         }
+        
         
         fclose(pFile);
         pFile=nullptr;
@@ -1409,13 +1384,9 @@ void TPulseViewer::InfoEvent()
         
     }
     
-    //OLD: -----------------------------------------------
-    //fLabelBranchName->SetText(s_name.Data());
-    //fLabelBranchValue->SetText(s_value.Data());
-    //NEW:
-    TGText text(s_value.Data());
-    fTextNameAndValue->AddText(&text);
-    //----------------------------------------------------
+    
+    
+    
     
     ((TTreePlayer*)(fInfoTree->GetPlayer()))->SetScanRedirect(false);
     fInfoTree->SetScanField(scan_field);
