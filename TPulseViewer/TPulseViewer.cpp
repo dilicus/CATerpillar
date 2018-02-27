@@ -230,9 +230,9 @@ void TPulseViewer::Init()
     //Adding vframe for multi line label
     
     TGVerticalFrame *vFrame_2_1 = new TGVerticalFrame(hFrameTab2_1);
-   
+    TGVerticalFrame *vFrame_2_2 = new TGVerticalFrame(hFrameTab2_1);
     hFrameTab2_1->AddFrame(vFrame_2_1, new TGLayoutHints(kLHintsExpandY |kLHintsLeft,5,5,5,5));
-    
+    hFrameTab2_1->AddFrame(vFrame_2_2 , new TGLayoutHints(kLHintsExpandY |kLHintsLeft,5,5,5,5));
     
     
     vFrame_2_1->ChangeOptions(kFixedWidth);
@@ -248,12 +248,70 @@ void TPulseViewer::Init()
     
     
     //Combo box
-    fComboBox = new TGComboBox(hFrameTab2_1);
-    hFrameTab2_1->AddFrame(fComboBox,new TGLayoutHints(kLHintsTop| kLHintsRight,2,2,2,2));
+    fComboBox = new TGComboBox(vFrame_2_2);
+    vFrame_2_2->AddFrame(fComboBox,new TGLayoutHints(kLHintsTop| kLHintsRight,2,2,2,2));
     fComboBox->ChangeOptions(kFixedWidth);
     fComboBox->SetWidth(120);
     fComboBox->SetHeight(20);
     fComboBox->Connect("Selected(Int_t)", "TPulseViewer", this, "SelectChain(Int_t)");
+    
+    TGGroupFrame *DrawButtonGroup_tab2 = new TGGroupFrame(vFrame_2_2,"Draw Button");
+    vFrame_2_2->AddFrame(DrawButtonGroup_tab2, new TGLayoutHints(kLHintsTop | kLHintsExpandX , 5,5,5,5));
+    
+    
+    //Two different horizontal frame for the alignement
+    TGHorizontalFrame *DrawButtonHoriz_1_tab2 = new TGHorizontalFrame(DrawButtonGroup_tab2);
+    TGHorizontalFrame *DrawButtonHoriz_2_tab2 = new TGHorizontalFrame(DrawButtonGroup_tab2);
+    
+    
+    
+    
+    DrawButtonGroup_tab2->AddFrame(DrawButtonHoriz_1_tab2, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY| kLHintsExpandX,0,0,5,2));
+    DrawButtonGroup_tab2->AddFrame(DrawButtonHoriz_2_tab2, new TGLayoutHints(kLHintsExpandX,0,0,2,2));
+    
+    
+    
+    
+    //Creation of the previous and next buttons...
+    
+    //previous
+    TGTextButton *previous_tab2 = new TGTextButton(DrawButtonHoriz_1_tab2,"Previous");
+    previous_tab2->Connect("Clicked()","TPulseViewer",this,"Previous()");
+    
+    
+    //next
+    TGTextButton *next_tab2 = new TGTextButton(DrawButtonHoriz_1_tab2,"Next");
+    next_tab2->Connect("Clicked()","TPulseViewer",this,"Next()");
+    
+    //...and addition to the First horizontal frame
+    DrawButtonHoriz_1_tab2->AddFrame(previous_tab2, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY,-1,2,2,2));
+    DrawButtonHoriz_1_tab2->AddFrame(next_tab2, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY,2,-1,2,2));
+    
+    previous_tab2->ChangeOptions(kFixedWidth | kFixedHeight | kRaisedFrame);
+    next_tab2->ChangeOptions(kFixedWidth| kFixedHeight | kRaisedFrame);
+    previous_tab2->Resize(75,24);
+    next_tab2->Resize(75,24);
+    
+    
+    //Creation of the textentry and button for the selection of any event in the chain
+    fEntryNumberIndex_tab2 = new TGTextEntry(DrawButtonHoriz_2_tab2,"");
+    fEntryNumberIndex_tab2->SetAlignment(kTextRight);
+    fEntryNumberIndex_tab2->SetMaxLength(10);
+    fEntryNumberIndex_tab2->Connect("ReturnPressed()","TPulseViewer",this,"SelectEvent()");
+    
+    TGTextButton *setIndex_tab2 = new TGTextButton(DrawButtonHoriz_2_tab2,"Load Event");
+    setIndex_tab2->Connect("Clicked()","TGTextEntry",fEntryNumberIndex_tab2,"ReturnPressed()");
+    
+    DrawButtonHoriz_2_tab2->AddFrame(fEntryNumberIndex_tab2, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY,-1,2,2,2));
+    DrawButtonHoriz_2_tab2->AddFrame(setIndex_tab2, new TGLayoutHints(kLHintsCenterX | kLHintsCenterY,2,-1,2,2));
+    
+    
+    
+    setIndex_tab2->ChangeOptions(kFixedWidth | kFixedHeight | kRaisedFrame);
+    fEntryNumberIndex_tab2->ChangeOptions(kFixedWidth | kFixedHeight | kSunkenFrame);
+    setIndex_tab2->Resize(75,24);
+    fEntryNumberIndex_tab2->Resize(75,24);
+    
     
     
     
@@ -580,6 +638,16 @@ void TPulseViewer::ApplyCut()
 void TPulseViewer::SelectEvent()
 {
     TString s = fEntryNumberIndex->GetText();
+    
+    if(s.IsDigit())
+        LoadEvent(s.Atoll());
+    return;
+}
+
+
+void TPulseViewer::SelectEvent_tab2()
+{
+    TString s = fEntryNumberIndex_tab2->GetText();
     
     if(s.IsDigit())
         LoadEvent(s.Atoll());

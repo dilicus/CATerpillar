@@ -45,6 +45,7 @@ private:
     TGTextEdit                *fTextNameAndValue;
     TGComboBox                *fComboBox;
     TGTextEntry               *fEntryNumberIndex;
+    TGTextEntry               *fEntryNumberIndex_tab2;
     TList                     *fFriendListChain=nullptr;
     TTree                     *fInfoTree=nullptr;
     TTree                     *fFitTreeParticle=nullptr;
@@ -134,6 +135,7 @@ public:
     virtual void LoadEvent(Long64_t index);
     virtual void DrawEvent();
     virtual void SelectEvent();
+    virtual void SelectEvent_tab2();
     virtual void Next();
     virtual void Previous();
 
