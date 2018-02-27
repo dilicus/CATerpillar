@@ -28,7 +28,7 @@ private:
     TTree                     *fPulseChain=nullptr;
     TList                     *fList;
     TCut                       fTCutExpression;
-    TGTextEdit               *fEntryCutExpression;
+    TGTextEdit                *fEntryCutExpression;
     TGMenuBar                 *fMenuBar;
     Bool_t                     fCheckAveragePlot=false;
     Bool_t                     fCheckRegularPlot=true;
@@ -64,10 +64,10 @@ private:
     UInt_t                     fDVM=0;
     Double_t                   fTimeBase=0.04;
     ULong64_t                  fRecordLenght = fSample*sizeof(short)
-                                              + fDVM*sizeof(float)
-                                              + fInt*sizeof(int)
-                                              + fUInt*sizeof(unsigned int)
-                                              + fReals*sizeof(float);
+                                             + fDVM*sizeof(float)
+                                             + fInt*sizeof(int)
+                                             + fUInt*sizeof(unsigned int)
+                                             + fReals*sizeof(float);
     UInt_t                     fNumberAverage = 50;
 
 

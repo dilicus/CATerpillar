@@ -297,7 +297,7 @@ void TPulseViewer::Init()
     fEntryNumberIndex_tab2 = new TGTextEntry(DrawButtonHoriz_2_tab2,"");
     fEntryNumberIndex_tab2->SetAlignment(kTextRight);
     fEntryNumberIndex_tab2->SetMaxLength(10);
-    fEntryNumberIndex_tab2->Connect("ReturnPressed()","TPulseViewer",this,"SelectEvent()");
+    fEntryNumberIndex_tab2->Connect("ReturnPressed()","TPulseViewer",this,"SelectEvent_tab2()");
     
     TGTextButton *setIndex_tab2 = new TGTextButton(DrawButtonHoriz_2_tab2,"Load Event");
     setIndex_tab2->Connect("Clicked()","TGTextEntry",fEntryNumberIndex_tab2,"ReturnPressed()");
@@ -641,6 +641,7 @@ void TPulseViewer::SelectEvent()
     
     if(s.IsDigit())
         LoadEvent(s.Atoll());
+  
     return;
 }
 
@@ -651,6 +652,8 @@ void TPulseViewer::SelectEvent_tab2()
     
     if(s.IsDigit())
         LoadEvent(s.Atoll());
+        
+    
     return;
 }
 
@@ -663,6 +666,7 @@ void TPulseViewer::LoadEvent(Long64_t idx)
         return;
     
     DrawEvent();
+    InfoEvent();
     return;
 }
 
@@ -674,6 +678,7 @@ void TPulseViewer::Previous()
         fEventListIndex--;
     
     DrawEvent();
+    InfoEvent();
     return;
 }
 
@@ -687,6 +692,7 @@ void TPulseViewer::Next()
         fEventListIndex++;
     
     DrawEvent();
+    InfoEvent();
     return;
 }
 
