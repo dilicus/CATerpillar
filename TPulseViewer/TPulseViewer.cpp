@@ -216,7 +216,7 @@ void TPulseViewer::Init()
     
     
     TGTextButton *apply = new TGTextButton(frameCutSelection,"Apply Cut");
-    apply->Connect("Clicked()","TGTextEntry",fEntryCutExpression,"ApplyCut()");
+    apply->Connect("Clicked()","TPulseViewer",this,"ApplyCut()");
     frameCutSelection->AddFrame(apply, new TGLayoutHints(kLHintsRight ,5,-2,2,2));
     frameCutSelection->ChangeOptions( kFixedHeight);
     frameCutSelection->Resize(500,75);//OLD:47);
@@ -628,6 +628,7 @@ void TPulseViewer::ApplyCut()
     
     
     DrawEvent();
+    InfoEvent();
     return;
     
 }
