@@ -405,8 +405,8 @@ TPulseViewer::TPulseViewer(TChain *input_chain)
     
     fInfoTree=fMainChain;
     
-    fMainChain->Draw(">>list",fTCutExpression);
-    fEventList=(TEventList*)gROOT->FindObject("list");
+    fMainChain->Draw(">>list",fTCutExpression,"entrylist");
+    fEventList=(TEntryList*)gROOT->FindObject("list");
     fEventIndex = 0;
     fEventListIndex = 0;
     fEventNumber = fMainChain->GetEntries();
@@ -453,12 +453,17 @@ TPulseViewer::TPulseViewer(TChain *input_chain)
     //NEW: ----------------------------------------------------------------
     if(fFitTreeParticle==nullptr) //<------------------ form here
         if(strcmp(fMainChain->GetName(),"ParticleFit")==0)
-            fFitTreeParticle=fMainChain;
+            {
+                fFitTreeParticle=fMainChain;
+                fDrawFitOption->SetState(true);
+            }
+    
     if(fFitTreeTP==nullptr)
         if(strcmp(fMainChain->GetName(),"TestPulseFit")==0)
-            fFitTreeTP=fMainChain;  //<------------------ to here
-                                    //---------------------------------------------------------------------
-    
+        {
+            fFitTreeTP=fMainChain;
+            fDrawFitOption->SetState(true);
+        }
     
     fComboBox->Select(0);
     
@@ -1592,8 +1597,9 @@ void exampleSte() {
     ch_friend_ptc->Add("~/ncal1_000_fit.root");
     ch_friend_tp->Add("~/ncal1_000_fit.root");
     ch->AddFriend(ch_friend_ptc);
-    ch->AddFriend(ch_friend_tp);
+    //ch_friend_ptc->AddFriend(ch_friend_tp);
+    ch_friend_ptc->AddFriend(ch);
     
-    p=new TPulseViewer(ch);
+    p=new TPulseViewer(ch_friend_ptc);
     
 }

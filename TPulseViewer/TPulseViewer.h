@@ -50,7 +50,7 @@ private:
     TTree                     *fInfoTree=nullptr;
     TTree                     *fFitTreeParticle=nullptr;
     TTree                     *fFitTreeTP=nullptr;
-    TEventList                *fEventList; //Tevent list con i gli indici che rispettano i tcut expression
+    TEntryList                *fEventList; //TEntryList con i gli indici che rispettano i tcut expression
     Long64_t                   fEventIndex; //indice evento della chain
     Long64_t                   fEventListIndex;//indice ad elemento lista che contiene info su indice evento chain
     Long64_t                   fEventNumber;//numero totale eventi
