@@ -405,8 +405,8 @@ TPulseViewer::TPulseViewer(TChain *input_chain)
     
     fInfoTree=fMainChain;
     
-    fMainChain->Draw(">>list",fTCutExpression,"entrylist");
-    fEventList=(TEntryList*)gROOT->FindObject("list");
+    fMainChain->Draw(">>list",fTCutExpression);
+    fEventList=(TEventList*)gROOT->FindObject("list");
     fEventIndex = 0;
     fEventListIndex = 0;
     fEventNumber = fMainChain->GetEntries();
@@ -614,8 +614,8 @@ void TPulseViewer::ApplyCut()
     }
     
     
-    Long64_t check=fMainChain->Draw(">>list",Form("%s",fTCutExpression.GetTitle()),"entrylist");
-    fEventList=(TEntryList*)gDirectory->FindObject("list");
+    Long64_t check=fMainChain->Draw(">>list",Form("%s",fTCutExpression.GetTitle()));
+    fEventList=(TEventList*)gDirectory->FindObject("list");
     
     gDirectory->Clear();
     
