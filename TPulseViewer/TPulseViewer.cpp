@@ -614,8 +614,8 @@ void TPulseViewer::ApplyCut()
     }
     
     
-    Long64_t check=fMainChain->Draw(">>list",Form("%s",fTCutExpression.GetTitle()));
-    fEventList=(TEventList*)gDirectory->FindObject("list");
+    Long64_t check=fMainChain->Draw(">>list",Form("%s",fTCutExpression.GetTitle()),"entrylist");
+    fEventList=(TEntryList*)gDirectory->FindObject("list");
     
     gDirectory->Clear();
     
