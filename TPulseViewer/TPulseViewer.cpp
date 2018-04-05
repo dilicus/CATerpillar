@@ -1561,7 +1561,7 @@ void TPulseViewer::GetInfoData()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-TChain *ch = nullptr;
+TChain *ch_rawdata = nullptr;
 TChain *ch_friend_ptc = nullptr;
 TChain *ch_friend_tp = nullptr;
 
@@ -1570,8 +1570,8 @@ TPulseViewer *p=nullptr;
 void exampleMiri() {
     
     //TChain *ch=nullptr;
-    ch=new TChain("PulseData");
-    ch->Add("cal3_001.root");
+    ch_rawdata=new TChain("PulseData");
+    ch_rawdata->Add("cal3_001.root");
     ch_friend_ptc =new TChain("ParticleFit");
     ch_friend_tp =new TChain("TestPulseFit");
     
@@ -1579,10 +1579,10 @@ void exampleMiri() {
     ch_friend_ptc->Add("cal3_001_fit.root");
     ch_friend_tp->Add("cal3_001_fit.root");
     
-    ch->AddFriend(ch_friend_ptc);
-    ch->AddFriend(ch_friend_tp);
+    ch_rawdata->AddFriend(ch_friend_ptc);
+    ch_rawdata->AddFriend(ch_friend_tp);
     
-    p=new TPulseViewer(ch);
+    p=new TPulseViewer(ch_rawdata);
     
 }
 
@@ -1590,16 +1590,16 @@ void exampleMiri() {
 void exampleSte() {
     
     //TChain *ch=nullptr;
-    ch=new TChain("PulseData");
-    ch->Add("~/ncal1_000.root");
+    ch_rawdata=new TChain("PulseData");
+    ch_rawdata->Add("~/ncal1_000.root");
     ch_friend_ptc =new TChain("ParticleFit");
     ch_friend_tp =new TChain("TestPulseFit");
     ch_friend_ptc->Add("~/ncal1_000_fit.root");
     ch_friend_tp->Add("~/ncal1_000_fit.root");
-    ch->AddFriend(ch_friend_ptc);
+    ch_rawdata->AddFriend(ch_friend_ptc);
     //ch_friend_ptc->AddFriend(ch_friend_tp);
-    ch_friend_ptc->AddFriend(ch);
+    ch_friend_ptc->AddFriend(ch_rawdata);
     
-    p=new TPulseViewer(ch_friend_ptc);
+    p=new TPulseViewer(ch_rawdata);
     
 }
